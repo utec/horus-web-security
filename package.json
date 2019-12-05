@@ -1,0 +1,27 @@
+{
+  "name": "horus-web-security",
+  "version": "1.0.0",
+  "description": "horus-web-security",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/utec/horus-web-security.git"
+  },
+  "dependencies": {
+    "axios": "0.19.0",
+    "jsonpath": "1.0.2"
+  },
+  "keywords": [
+    "horus-web-security"
+  ],
+  "author": "Nick B. Palomino <nbpalomino@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "#"
+  },
+  "homepage": "#",
+  "devDependencies": {}
+}
