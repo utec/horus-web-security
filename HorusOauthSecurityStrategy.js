@@ -28,7 +28,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       logger.info("Mapping menu from response");
       mapMenuReferences(userConfig.options, options);
 
-      req.session.userLogguedIn = userConfig;
+      req.session.connectedUserInformation = userConfig;
       req.session.save();
 
       if (req.session.originalUrl) {
@@ -48,8 +48,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       throw new Error("Session is not properly configured");
     }
 
-    if (req.session.userLogguedIn) {
-      //User is already logued in
+    if (req.session.connectedUserInformation) {
+      //User is already logged in
       return next();
     } else {
       logger.info("User not logged in");
