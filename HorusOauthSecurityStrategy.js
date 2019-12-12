@@ -26,7 +26,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         return;
       }
       logger.info("Mapping menu from response");
-      mapMenuReferences(userConfig.options, options);
+      userConfig.options = mapMenuReferences(userConfig.options, options);
 
       req.session.connectedUserInformation = userConfig;
       req.session.save();
@@ -79,7 +79,17 @@ function mapMenuReferences(menuOptions, appOptions) {
         opt.value = opt.value.replace(matched[0], baseUrl);
       }
     }
+    opt.childs = menuAnidado(menuOptions, opt.id);
+    if(opt.parentId === undefined) {
+      menus.push(opt);
+    }
   });
+  return menus;
 }
+
+function menuAnidado(menuOptions, parentId) {
+  return menuOptions.filter(menu => menu.parentId === parentId);
+}
+
 
 module.exports = HorusOauthSecurityStrategy;
