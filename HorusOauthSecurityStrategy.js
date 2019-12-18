@@ -71,6 +71,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 }
 
 function mapMenuReferences(menuOptions, appOptions) {
+  var menus = [];
   menuOptions.forEach(opt => {
     var matched = opt.value.match(appOptions.regexPattern);
     if(matched) {

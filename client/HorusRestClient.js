@@ -19,17 +19,17 @@ function HorusRestClient(horusBaseUrl) {
         .then(function(horusResponse) {
 
           if (!horusResponse || (typeof horusResponse === 'undefined')) {
-            return callback("Horus " + horusGetOptionsEndpoint + " http response is wrong.", null);
+            return callback("Horus " + horusAuthenticateEndpoint + " http response is wrong.", null);
           }
 
           if (!horusResponse.data || (typeof horusResponse.data === 'undefined')) {
-            return callback("Horus " + horusGetOptionsEndpoint + " http response body is null, empty or wrong.", null);
+            return callback("Horus " + horusAuthenticateEndpoint + " http response body is null, empty or wrong.", null);
           }
 
           var status = jp.query(horusResponse.data, '$.status');
 
           if (status != "200") {
-            return callback("Horus " + horusGetOptionsEndpoint + " json response contains [status] different to 200:" + JSON.stringify(horusResponse.data), null);
+            return callback("Horus " + horusAuthenticateEndpoint + " json response contains [status] different to 200:" + JSON.stringify(horusResponse.data), null);
           }
 
           return callback(null, horusResponse.data.content);
@@ -37,11 +37,11 @@ function HorusRestClient(horusBaseUrl) {
         })
         .catch(function(err) {
           logger.error(err.response);
-          return callback("Horus is down or " + horusGetOptionsEndpoint + " does not respond: " + err.message, null);
+          return callback("Horus is down or " + horusAuthenticateEndpoint + " does not respond: " + err.message, null);
         });
     } catch (globalErr) {
       logger.error(globalErr.stack);
-      return callback("Error when consuming Horus service " + horusGetOptionsEndpoint + ":" + globalErr.message, null);
+      return callback("Error when consuming Horus service " + horusAuthenticateEndpoint + ":" + globalErr.message, null);
     }
 
   }
