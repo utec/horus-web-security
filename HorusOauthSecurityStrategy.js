@@ -80,7 +80,10 @@ function mapMenuReferences(menuOptions, appOptions) {
         opt.value = opt.value.replace(matched[0], baseUrl);
       }
     }
-    opt.childs = menuAnidado(menuOptions, opt.id);
+    childrens = embeddedMenu(menuOptions, opt.id);
+
+    if (childrens.length) { opt.childs = childrens }
+
     if(opt.parentId === undefined) {
       menus.push(opt);
     }
@@ -88,7 +91,7 @@ function mapMenuReferences(menuOptions, appOptions) {
   return menus;
 }
 
-function menuAnidado(menuOptions, parentId) {
+function embeddedMenu(menuOptions, parentId) {
   return menuOptions.filter(menu => menu.parentId === parentId);
 }
 
