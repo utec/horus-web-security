@@ -80,6 +80,8 @@ function mapMenuReferences(menuOptions, appOptions) {
         opt.value = opt.value.replace(matched[0], baseUrl);
       }
     }
+    addIcon(opt, appOptions);
+
     childrens = embeddedMenu(menuOptions, opt.id);
 
     if (childrens.length) { opt.childs = childrens }
@@ -93,6 +95,14 @@ function mapMenuReferences(menuOptions, appOptions) {
 
 function embeddedMenu(menuOptions, parentId) {
   return menuOptions.filter(menu => menu.parentId === parentId);
+}
+
+function addIcon(menu, options) {
+  if(options.menuIcons) {
+    if(options.menuIcons[menu.identifier]) {
+      menu.icon = options.menuIcons[menu.identifier];
+    }
+  }
 }
 
 
