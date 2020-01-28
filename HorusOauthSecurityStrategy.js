@@ -98,10 +98,8 @@ function embeddedMenu(menuOptions, parentId) {
 }
 
 function addIcon(menu, options) {
-  if(options.menuIcons) {
-    if(options.menuIcons[menu.identifier]) {
-      menu.icon = options.menuIcons[menu.identifier];
-    }
+  if(options.menuIcons && options.menuIcons[menu.identifier]) {
+    menu.icon = options.menuIcons[menu.identifier];
   }
 }
 
