@@ -25,8 +25,13 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         res.redirect(options.express.failureRedirectRoute);
         return;
       }
-      logger.info("Mapping menu from response");
-      userConfig.options = mapMenuReferences(userConfig.options, options);
+
+      if(options.overrideResponse === true){
+        logger.info("Modifying default response");
+        userConfig.options = mapMenuReferences(userConfig.options, options);
+      }else{
+        logger.info("default response will be returned");
+      }
 
       req.session.connectedUserInformation = userConfig;
       req.session.save();
