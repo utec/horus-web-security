@@ -6,7 +6,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
   var _this = this;
   var horusRestClient = new HorusRestClient(options.horusBaseUrl);
 
-  expressServer.get(options.express.callbackRoute, function(req, res) {
+  expressServer.get(options.express.callbackRoute, function (req, res) {
 
     var authorizationCode = req.query.code;
 
@@ -16,20 +16,23 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       return;
     }
 
-    logger.info("Authorization new user with code: "+authorizationCode);
+    logger.info("Authorization new user with code: " + authorizationCode);
     options.horusOptions.authenticate.authorizationCode = authorizationCode;
 
-    horusRestClient.authenticate(options.horusOptions.authenticate, function(getAuthorizeUrlErr, userConfig) {
+    horusRestClient.authenticate(options.horusOptions.authenticate, function (getAuthorizeUrlErr, userConfig) {
       if (getAuthorizeUrlErr) {
-        logger.error("Error in auth transaction: "+getAuthorizeUrlErr);
+        logger.error("Error in auth transaction: " + getAuthorizeUrlErr);
         res.redirect(options.express.failureRedirectRoute);
         return;
       }
 
-      if(options.overrideResponse === true){
+      if (options.overrideResponse === true && options.defaultBussinessUnit) {
         logger.info("Modifying default response");
-        userConfig.options = mapMenuReferences(userConfig.options, options);
-      }else{
+        var businessUnit = userConfig.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
+        var rawOptions = businessUnit.profiles[0].options;
+        logger.debug(rawOptions);
+        userConfig.options = mapMenuReferences(rawOptions, options);
+      } else {
         logger.info("default response will be returned");
       }
 
@@ -47,7 +50,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
   });
 
-  this.ensureAuthenticated = function(req, res, next) {
+  this.ensureAuthenticated = function (req, res, next) {
 
     if (!req.session || (typeof req.session === 'undefined')) {
       throw new Error("Session is not properly configured");
@@ -59,8 +62,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
     } else {
       logger.info("User not logged in");
 
-      logger.info(options.horusOptions.authorizeUrl);
-      horusRestClient.getAuthorizeUrl(options.horusOptions.authorizeUrl, function(getAuthorizeUrlErr, authorizeUrl) {
+      logger.info(options.horusOptions.authenticate);
+      horusRestClient.getAuthorizeUrl(options.horusOptions.authenticate, function (getAuthorizeUrlErr, authorizeUrl) {
         if (getAuthorizeUrlErr) {
           logger.error(getAuthorizeUrlErr);
           res.redirect(options.express.failureRedirectRoute);
@@ -79,9 +82,9 @@ function mapMenuReferences(menuOptions, appOptions) {
   var menus = [];
   menuOptions.forEach(opt => {
     var matched = opt.value.match(appOptions.regexPattern);
-    if(matched) {
+    if (matched) {
       var baseUrl = appOptions.dependencies[matched[1]];
-      if(baseUrl) {
+      if (baseUrl) {
         opt.value = opt.value.replace(matched[0], baseUrl);
       }
     }
@@ -91,7 +94,7 @@ function mapMenuReferences(menuOptions, appOptions) {
 
     if (childrens.length) { opt.childs = childrens }
 
-    if(opt.parentId === undefined) {
+    if (opt.parentId === undefined) {
       menus.push(opt);
     }
   });
@@ -103,7 +106,7 @@ function embeddedMenu(menuOptions, parentId) {
 }
 
 function addIcon(menu, options) {
-  if(options.menuIcons && options.menuIcons[menu.identifier]) {
+  if (options.menuIcons && options.menuIcons[menu.identifier]) {
     menu.icon = options.menuIcons[menu.identifier];
   }
 }
