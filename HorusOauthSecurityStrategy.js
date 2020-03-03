@@ -1,7 +1,8 @@
 const HorusRestClient = require('./client/HorusRestClient.js');
+const uuid = require('uuid');
 
 function HorusOauthSecurityStrategy(expressServer, options) {
-  logger.info(options);
+  logger.debug(options);
 
   var _this = this;
   var horusRestClient = new HorusRestClient(options.horusBaseUrl);
@@ -11,29 +12,52 @@ function HorusOauthSecurityStrategy(expressServer, options) {
     var authorizationCode = req.query.code;
 
     if (!authorizationCode || (typeof authorizationCode === 'undefined')) {
-      logger.error("oauth authorization code is undefined. This is very rare. Is the earth planet alive?");
+      var requestId = uuid.v4();
+      logger.error(requestId+": "+getAuthorizeUrlErr);
+      req.flash('request_id', requestId);
+      logger.error(requestId+" : oauth authorization code is undefined. This is very rare. Is the earth planet alive?");
       res.redirect(options.express.failureRedirectRoute);
       return;
     }
 
-    logger.info("Authorization new user with code: "+authorizationCode);
+    logger.info("Authorizing new user with google oauth code: "+authorizationCode);
     options.horusOptions.authenticate.authorizationCode = authorizationCode;
 
-    horusRestClient.authenticate(options.horusOptions.authenticate, function(getAuthorizeUrlErr, userConfig) {
-      if (getAuthorizeUrlErr) {
-        logger.error("Error in auth transaction: "+getAuthorizeUrlErr);
+    var params = {
+      "grantType":options.horusOptions.authenticate.grantType,
+      "clientId":options.horusOptions.authenticate.clientId,
+      "authorizationCode":authorizationCode,
+      "applicationId":options.horusOptions.authenticate.applicationId
+    }
+
+    horusRestClient.authenticate(params, function(horusAuthError, horusAuthResponse) {
+      if (horusAuthError) {
+        var requestId = uuid.v4();
+        logger.error(requestId+": "+getAuthorizeUrlErr);
+        req.flash('request_id', requestId);
+        logger.error(requestId+" : Error in auth transaction: "+horusAuthError);
         res.redirect(options.express.failureRedirectRoute);
         return;
       }
 
       if(options.overrideResponse === true){
-        logger.info("Modifying default response");
-        userConfig.options = mapMenuReferences(userConfig.options, options);
+        logger.info("Modifying oauth default response");
+        horusAuthResponse.options = mapMenuReferences(horusAuthResponse.options, options);
       }else{
-        logger.info("default response will be returned");
+        logger.info("default oauth response will be returned");
       }
 
-      req.session.connectedUserInformation = userConfig;
+      req.session.tokenInformation = {};
+
+      req.session.tokenInformation.acquisitionTime = new Date().getTime();
+      req.session.tokenInformation.refreshTokenV1 = horusAuthResponse.refreshTokenV1;
+      req.session.tokenInformation.refreshTokenV2 = horusAuthResponse.refreshTokenV2;
+
+      //delete unnecesary values
+      delete horusAuthResponse.refreshTokenV1;
+      delete horusAuthResponse.refreshTokenV2;
+
+      req.session.connectedUserInformation = horusAuthResponse;
       req.session.save();
 
       if (req.session.originalUrl) {
@@ -55,14 +79,64 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
     if (req.session.connectedUserInformation) {
       //User is already logged in
-      return next();
+      if(isHorusTokenExpired(req)){
+        //refresh tokens
+        logger.debug("Horus token is expired");
+
+        var params = {
+           "grantType":"refresh_token",
+           "refreshTokenV1":req.session.tokenInformation.refreshTokenV1,
+           "refreshTokenV2":req.session.tokenInformation.refreshTokenV2
+        }
+
+        horusRestClient.refreshTokens(params, function(refreshTokensError, refreshTokensResponse){
+          if(refreshTokensError){
+            logger.debug("token renewal failure:"+refreshTokensError);
+            if(req.path.endsWith("/settings.json")){
+              var settings = {};
+              settings.session = {};
+              settings.session.expiredSession = true;
+              responseUtil.createJsonResponse(settings, req, res);
+              return;
+            }else{
+              var requestId = uuid.v4();
+              logger.error(requestId+": "+"token renewal failure:"+refreshTokensError);
+              req.flash('request_id', requestId);
+              res.redirect(options.express.failureRedirectRoute);
+              return;
+            }
+          }
+
+          //no errors, update tokens
+          req.session.connectedUserInformation.tokenV1 = refreshTokensResponse.tokenV1;
+          req.session.connectedUserInformation.tokenV2 = refreshTokensResponse.tokenV2;
+          req.session.connectedUserInformation.renewedTokens = true;
+
+          //upate refresh tokens
+          req.session.tokenInformation.refreshTokenV1 = refreshTokensResponse.refreshTokenV1;
+          req.session.tokenInformation.refreshTokenV2 = refreshTokensResponse.refreshTokenV2;
+          req.session.tokenInformation.acquisitionTime = new Date().getTime();
+
+          return next();
+        });
+      }else{
+        req.session.connectedUserInformation.renewedTokens = false;
+        return next();
+      }
     } else {
       logger.info("User not logged in");
 
-      logger.info(options.horusOptions.authorizeUrl);
-      horusRestClient.getAuthorizeUrl(options.horusOptions.authorizeUrl, function(getAuthorizeUrlErr, authorizeUrl) {
+      var params = {
+         "clientId":options.horusOptions.authenticate.clientId,
+         "clientType":options.horusOptions.authenticate.clientType,
+         "applicationId":options.horusOptions.authenticate.applicationId
+      }
+
+      horusRestClient.getAuthorizeUrl(params, function(getAuthorizeUrlErr, authorizeUrl) {
         if (getAuthorizeUrlErr) {
-          logger.error(getAuthorizeUrlErr);
+          var requestId = uuid.v4();
+          logger.error(requestId+": "+getAuthorizeUrlErr);
+          req.flash('request_id', requestId);
           res.redirect(options.express.failureRedirectRoute);
           return;
         }
@@ -73,6 +147,15 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       });
     }
   }
+
+
+  function isHorusTokenExpired(req){
+    var acquisitionTime = req.session.tokenInformation.acquisitionTime;
+    var now = new Date().getTime();
+    var expirationTime = options.horusOptions.tokenExpirationTime;
+    return now > (acquisitionTime + expirationTime*1000);
+  }
+
 }
 
 function mapMenuReferences(menuOptions, appOptions) {
