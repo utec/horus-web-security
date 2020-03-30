@@ -7,21 +7,21 @@ function HorusRestClient(horusBaseUrl) {
   var horusGetAuthorizeUrlEndpoint = horusBaseUrl + '/v1/nonspec/oauth2/auth/url';
   var horusRefreshTokensEndpoint = horusBaseUrl + '/v1/nonspec/oauth2/token/refresh';
 
-  this.authenticate = function(params, requestId, callback) {
+  this.authenticate = function (params, requestId, callback) {
 
     logger.debug(params);
 
     try {
       axios({
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'X-UTEC-REQUEST-ID': requestId
-          },
-          url: horusAuthenticateEndpoint,
-          data: params,
-        })
-        .then(function(horusResponse) {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'X-UTEC-REQUEST-ID': requestId
+        },
+        url: horusAuthenticateEndpoint,
+        data: params,
+      })
+        .then(function (horusResponse) {
 
           if (!horusResponse || (typeof horusResponse === 'undefined')) {
             return callback("Horus " + horusAuthenticateEndpoint + " http response is wrong.", null);
@@ -40,10 +40,10 @@ function HorusRestClient(horusBaseUrl) {
           return callback(null, horusResponse.data.content);
 
         })
-        .catch(function(err) {
+        .catch(function (err) {
           logger.error(err.stack);
-          if(err.response && err.response.data && err.response.status && err.response.data.message){
-            logger.error("Error: "+err.response.data.status+", message:"+err.response.data.message);
+          if (err.response && err.response.data && err.response.status && err.response.data.message) {
+            logger.error("Error: " + err.response.data.status + ", message:" + err.response.data.message);
           }
           return callback("Horus is down or " + horusAuthenticateEndpoint + " does not respond: " + err.message, null);
         });
@@ -54,19 +54,19 @@ function HorusRestClient(horusBaseUrl) {
 
   }
 
-  this.getAuthorizeUrl = function(params, requestId, callback) {
+  this.getAuthorizeUrl = function (params, requestId, callback) {
 
     try {
       axios({
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'X-UTEC-REQUEST-ID': requestId
-          },
-          url: horusGetAuthorizeUrlEndpoint,
-          data: params
-        })
-        .then(function(horusResponse) {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'X-UTEC-REQUEST-ID': requestId
+        },
+        url: horusGetAuthorizeUrlEndpoint,
+        data: params
+      })
+        .then(function (horusResponse) {
           if (!horusResponse || (typeof horusResponse === 'undefined')) {
             return callback("Horus " + horusGetAuthorizeUrlEndpoint + " http response is wrong.", null)
           }
@@ -89,10 +89,10 @@ function HorusRestClient(horusBaseUrl) {
           return callback(null, horusResponse.data.content.url);
 
         })
-        .catch(function(err) {
+        .catch(function (err) {
           logger.error(err.stack);
-          if(err.response && err.response.data && err.response.status && err.response.data.message){
-            logger.error("Error: "+err.response.data.status+", message:"+err.response.data.message);
+          if (err.response && err.response.data && err.response.status && err.response.data.message) {
+            logger.error("Error: " + err.response.data.status + ", message:" + err.response.data.message);
           }
           return callback("Horus is down or " + horusGetAuthorizeUrlEndpoint + " does not respond: " + err, null);
         });
@@ -103,19 +103,19 @@ function HorusRestClient(horusBaseUrl) {
 
   }
 
-  this.refreshTokens = function(params, requestId, callback) {
+  this.refreshTokens = function (params, requestId, callback) {
 
     try {
       axios({
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'X-UTEC-REQUEST-ID': requestId
-          },
-          url: horusRefreshTokensEndpoint,
-          data: params
-        })
-        .then(function(horusResponse) {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'X-UTEC-REQUEST-ID': requestId
+        },
+        url: horusRefreshTokensEndpoint,
+        data: params
+      })
+        .then(function (horusResponse) {
           if (!horusResponse || (typeof horusResponse === 'undefined')) {
             return callback("Horus " + horusRefreshTokensEndpoint + " http response is wrong.", null)
           }
@@ -139,10 +139,10 @@ function HorusRestClient(horusBaseUrl) {
           return callback(null, horusResponse.data.content);
 
         })
-        .catch(function(err) {
+        .catch(function (err) {
           logger.error(err.stack);
-          if(err.response && err.response.data && err.response.status && err.response.data.message){
-            logger.error("Error: "+err.response.data.status+", message:"+err.response.data.message);
+          if (err.response && err.response.data && err.response.status && err.response.data.message) {
+            logger.error("Error: " + err.response.data.status + ", message:" + err.response.data.message);
           }
           return callback("Horus is down or " + horusRefreshTokensEndpoint + " does not respond: " + err.message, null);
         });
