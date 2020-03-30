@@ -7,7 +7,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
   var _this = this;
   var horusRestClient = new HorusRestClient(options.horusBaseUrl);
 
-  expressServer.get(options.express.callbackRoute, function(req, res) {
+  expressServer.get(options.express.callbackRoute, function (req, res) {
 
     var authorizationCode = req.query.code;
 
@@ -35,12 +35,14 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         res.redirect(options.express.failureRedirectRoute);
         return;
       }
-
-      if(options.overrideResponse === true){
-        logger.info("Modifying oauth default response");
-        horusAuthResponse.options = mapMenuReferences(horusAuthResponse.options, options);
-      }else{
-        logger.info("default oauth response will be returned");
+      if (options.overrideResponse === true && options.defaultBussinessUnit) {
+        logger.info("Modifying default response");
+        var businessUnit = userConfig.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
+        var rawOptions = businessUnit.profiles[0].options;
+        logger.debug(rawOptions);
+        userConfig.options = mapMenuReferences(rawOptions, options);
+      } else {
+        logger.info("default response will be returned");
       }
 
       req.session.tokenInformation = {};
@@ -67,7 +69,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
   });
 
-  this.ensureAuthenticated = function(req, res, next) {
+  this.ensureAuthenticated = function (req, res, next) {
 
     logger.debug("ensure if user is authenticated:"+req.path);
 
@@ -176,9 +178,9 @@ function mapMenuReferences(menuOptions, appOptions) {
   var menus = [];
   menuOptions.forEach(opt => {
     var matched = opt.value.match(appOptions.regexPattern);
-    if(matched) {
+    if (matched) {
       var baseUrl = appOptions.dependencies[matched[1]];
-      if(baseUrl) {
+      if (baseUrl) {
         opt.value = opt.value.replace(matched[0], baseUrl);
       }
     }
@@ -188,7 +190,7 @@ function mapMenuReferences(menuOptions, appOptions) {
 
     if (childrens.length) { opt.childs = childrens }
 
-    if(opt.parentId === undefined) {
+    if (opt.parentId === undefined) {
       menus.push(opt);
     }
   });
@@ -200,10 +202,8 @@ function embeddedMenu(menuOptions, parentId) {
 }
 
 function addIcon(menu, options) {
-  if(options.menuIcons) {
-    if(options.menuIcons[menu.identifier]) {
-      menu.icon = options.menuIcons[menu.identifier];
-    }
+  if (options.menuIcons && options.menuIcons[menu.identifier]) {
+    menu.icon = options.menuIcons[menu.identifier];
   }
 }
 
