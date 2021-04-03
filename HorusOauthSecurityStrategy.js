@@ -53,8 +53,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       req.session.tokenInformation.refreshTokenV2 = horusAuthResponse.refreshTokenV2;
 
       //delete unnecesary values
-      delete horusAuthResponse.refreshTokenV1;
-      delete horusAuthResponse.refreshTokenV2;
+      //delete horusAuthResponse.refreshTokenV1;
+      //delete horusAuthResponse.refreshTokenV2;
 
       req.session.connectedUserInformation = horusAuthResponse;
       req.session.save();
