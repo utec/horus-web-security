@@ -60,10 +60,11 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       req.session.save();
 
       logger.info("respomse with resfreshtoken");
-
       if (req.session.originalUrl) {
+        logger.info("Original :"+req.session.originalUrl);
         res.redirect(req.session.originalUrl);
       } else {
+        logger.info("Other url : "+options.express.defaultSuccessLoginRoute);
         res.redirect(options.express.defaultSuccessLoginRoute);
       }
 
