@@ -59,6 +59,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       req.session.connectedUserInformation = horusAuthResponse;
       req.session.save();
 
+      logger.info("respomse with resfreshtoken");
+
       if (req.session.originalUrl) {
         res.redirect(req.session.originalUrl);
       } else {
