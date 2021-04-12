@@ -75,7 +75,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
   this.ensureAuthenticated = function (req, res, next) {
 
-    logger.info("ensure if user is authenticated:" + req.path);
+    logger.debug("ensure if user is authenticated:" + req.path);
 
     if (!req.session || (typeof req.session === 'undefined')) {
       throw new Error("Session is not properly configured");
@@ -85,7 +85,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       //User is already logged in
       if (isHorusTokenExpired(req)) {
         //refresh tokens
-        logger.info("Horus token is expired");
+        logger.debug("Horus token is expired");
 
         var params = {
           "grantType": "refresh_token",
@@ -157,7 +157,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
     var acquisitionTime = req.session.tokenInformation.acquisitionTime;
     var now = new Date().getTime();
     var tokenExpirationTime = options.horusOptions.tokenExpirationTime;
-    logger.info("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000)
+    logger.debug("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000)
     return now > (acquisitionTime + tokenExpirationTime * 1000);
   }
 
