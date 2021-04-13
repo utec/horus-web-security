@@ -81,6 +81,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
     if (req.session.connectedUserInformation) {
       //User is already logged in
+    logger.debug("Expiro sesion horus :"+isHorusTokenExpired(req));
       if (isHorusTokenExpired(req)) {
         //refresh tokens
         logger.debug("Horus token is expired");
@@ -122,6 +123,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           return next();
         });
       } else {
+        logger.debug("No expiro sesion horus ");
         req.session.connectedUserInformation.renewedTokens = false;
         return next();
       }
