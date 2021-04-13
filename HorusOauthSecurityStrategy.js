@@ -80,7 +80,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
     }
 
   logger.debug("Antes de verificar sesion :"+ JSON.stringify(req.session));
-  logger.debug("Antes de verificar sesion :"+ req.session.connectedUserInformation);
+  logger.debug("Antes de verificar sesion connectedUserInformation :"+ req.session.connectedUserInformation);
 
     if (req.session.connectedUserInformation) {
       //User is already logged in
