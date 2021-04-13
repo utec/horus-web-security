@@ -52,19 +52,17 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       req.session.tokenInformation.refreshTokenV1 = horusAuthResponse.refreshTokenV1;
       req.session.tokenInformation.refreshTokenV2 = horusAuthResponse.refreshTokenV2;
 
-      //delete unnecesary values test
+      //delete unnecesary values
       //delete horusAuthResponse.refreshTokenV1;
       //delete horusAuthResponse.refreshTokenV2;
-
+      logger.debug("Response con refreshTokens");
+      logger.info("Response con refreshTokens");
       req.session.connectedUserInformation = horusAuthResponse;
       req.session.save();
 
-      logger.info("respomse with resfreshtoken");
       if (req.session.originalUrl) {
-        logger.info("Original :"+req.session.originalUrl);
         res.redirect(req.session.originalUrl);
       } else {
-        logger.info("Other url : "+options.express.defaultSuccessLoginRoute);
         res.redirect(options.express.defaultSuccessLoginRoute);
       }
 
@@ -153,7 +151,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
   }
 
 
-  function isHorusTokenExpired(req) {.
+  function isHorusTokenExpired(req) {
     var acquisitionTime = req.session.tokenInformation.acquisitionTime;
     var now = new Date().getTime();
     var tokenExpirationTime = options.horusOptions.tokenExpirationTime;
