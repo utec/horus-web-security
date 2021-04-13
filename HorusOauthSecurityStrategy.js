@@ -79,6 +79,9 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       throw new Error("Session is not properly configured");
     }
 
+  logger.debug("Antes de verificar sesion :"+ req.session);
+  logger.debug("Antes de verificar sesion :"+ req.session.connectedUserInformation);
+
     if (req.session.connectedUserInformation) {
       //User is already logged in
     logger.debug("Expiro sesion horus :"+isHorusTokenExpired(req));
