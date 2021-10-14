@@ -124,8 +124,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         req.session.signinStarted = true;
         req.session.save();
 
-        logger.debug("session =====>")
-        logger.debug(req.session)
+        logger.info("session =====>")
+        logger.info(req.session)
   
         if (req.session.originalUrl) {
           res.redirect(req.session.originalUrl);
@@ -146,6 +146,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
   this.ensureAuthenticated = function (req, res, next) {
 
     logger.debug("ensure if user is authenticated:" + req.path);
+    logger.info("entro=====================")
 
     if (!req.session || (typeof req.session === 'undefined')) {
       throw new Error("Session is not properly configured");
