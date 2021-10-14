@@ -124,7 +124,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         req.session.signinStarted = true;
         req.session.save();
 
-        logger.info(req.session)
+        logger.debug("session =====>")
+        logger.debug(req.session)
   
         if (req.session.originalUrl) {
           res.redirect(req.session.originalUrl);
