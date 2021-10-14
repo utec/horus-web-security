@@ -148,7 +148,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
   this.ensureAuthenticated = function (req, res, next) {
 
     logger.info("entro primero ==================>")
-    logger.info(req)
+    logger.info(JSON.stringify(req))
 
     logger.debug("ensure if user is authenticated:" + req.path);
 
