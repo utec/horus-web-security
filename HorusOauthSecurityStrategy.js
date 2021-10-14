@@ -43,8 +43,6 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           profile.options = mapMenuReferences(profile.options, options)
         })
 
-        logger.info("businessUnit =====>")
-        logger.info(businessUnit)
       } else {
         logger.info("default response will be returned");
       }
@@ -62,8 +60,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       req.session.connectedUserInformation = horusAuthResponse;
       req.session.save();
 
-      logger.info("session =====>")
-      logger.info(req.session)
+      logger.info(req.session.originalUrl)
 
       if (req.session.originalUrl) {
         res.redirect(req.session.originalUrl);
@@ -148,7 +145,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
   this.ensureAuthenticated = function (req, res, next) {
 
     logger.info("entro primero ==================>")
-    logger.info(JSON.stringify(req))
+    logger.info(req.originalUrl)
 
     logger.debug("ensure if user is authenticated:" + req.path);
 
