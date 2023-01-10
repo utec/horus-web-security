@@ -180,15 +180,15 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         delete horusAuthResponse.refreshTokenV2;
   
         req.session.connectedUserInformation = horusAuthResponse;
-        
+        req.session.connectedUserInformation.student = {};
         // injectando valores del public login (tokenV1 y datos básicos)
         req.session.connectedUserInformation.tokenV1 = req.session.publicUserInformation.tokenV1;
-        req.session.connectedUserInformation.codAlumno = req.session.publicUserInformation.alumno.codPersona;
-        req.session.connectedUserInformation.userName = req.session.publicUserInformation.alumno.userName;
-        req.session.connectedUserInformation.idAlumno = req.session.publicUserInformation.alumno.idAlumno;
-        req.session.connectedUserInformation.documentoIdentidad = req.session.publicUserInformation.alumno.documentoIdentidad;
-        req.session.connectedUserInformation.name = req.session.publicUserInformation.alumno.nomPersona;
-        req.session.connectedUserInformation.mail = req.session.publicUserInformation.alumno.mailRecovery;
+        req.session.connectedUserInformation.student.codAlumno = req.session.publicUserInformation.alumno.codPersona;
+        req.session.connectedUserInformation.student.userName = req.session.publicUserInformation.alumno.userName;
+        req.session.connectedUserInformation.student.idAlumno = req.session.publicUserInformation.alumno.idAlumno;
+        req.session.connectedUserInformation.student.documentoIdentidad = req.session.publicUserInformation.alumno.documentoIdentidad;
+        req.session.connectedUserInformation.student.name = req.session.publicUserInformation.alumno.nomPersona;
+        req.session.connectedUserInformation.student.mail = req.session.publicUserInformation.alumno.mailRecovery;
 
         req.session.signinStarted = true;
         req.session.save();
