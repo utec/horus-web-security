@@ -158,17 +158,18 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           res.redirect(options.express.failureRedirectRoute);
           return;
         }
-        if (options.overrideResponse === true && options.defaultBussinessUnit) {
-          logger.info("Modifying default response");
-          var businessUnit = horusAuthResponse.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
+        // if (options.overrideResponse === true && options.defaultBussinessUnit) {
+        //   logger.info("Modifying default response");
+        //   var businessUnit = horusAuthResponse.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
   
-          businessUnit.profiles.forEach(profile => {
-            profile.options = mapMenuReferences(profile.options, options)
-          })
-        } else {
-          logger.info("public login default response will be returned");
-        }
-
+        //   businessUnit.profiles.forEach(profile => {
+        //     profile.options = mapMenuReferences(profile.options, options)
+        //   })
+        // } else {
+        //   logger.info("public login default response will be returned");
+        // }
+        logger.info('SESSION');
+        logger.info(req.session);
         req.session.tokenInformation = {};
   
         req.session.tokenInformation.acquisitionTime = new Date().getTime();
