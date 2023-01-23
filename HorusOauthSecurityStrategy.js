@@ -158,18 +158,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           res.redirect(options.express.failureRedirectRoute);
           return;
         }
-        // if (options.overrideResponse === true && options.defaultBussinessUnit) {
-        //   logger.info("Modifying default response");
-        //   var businessUnit = horusAuthResponse.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
-  
-        //   businessUnit.profiles.forEach(profile => {
-        //     profile.options = mapMenuReferences(profile.options, options)
-        //   })
-        // } else {
-        //   logger.info("public login default response will be returned");
-        // }
-        logger.info('SESSION');
-        logger.info(req.session);
+
         req.session.tokenInformation = {};
   
         req.session.tokenInformation.acquisitionTime = new Date().getTime();
@@ -190,7 +179,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         req.session.connectedUserInformation.student.documentoIdentidad = req.session.publicUserInformation.alumno.documentoIdentidad;
         req.session.connectedUserInformation.student.name = req.session.publicUserInformation.alumno.nomPersona;
         req.session.connectedUserInformation.student.mail = req.session.publicUserInformation.alumno.mailRecovery;
-
+        req.session.originalUrl= '/reingreso';
         req.session.signinStarted = true;
         req.session.save();
   
@@ -206,7 +195,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
     } else {
       logger.error("HorusOauthSecurity solicitud login is disabled")
-      res.redirect("/");
+      res.redirect("/public/solicitudes");
     }
   })
 
