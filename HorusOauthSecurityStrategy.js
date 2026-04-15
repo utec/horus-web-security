@@ -119,6 +119,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         req.session.connectedUserInformation.firstName = req.session.publicUserInformation.name;
         req.session.connectedUserInformation.publicLoginId = req.session.publicUserInformation.id;
         req.session.connectedUserInformation.lastName = req.session.publicUserInformation.lastname;
+        req.session.connectedUserInformation.esEgresado = req.session.publicUserInformation.esEgresado;
 
         req.session.signinStarted = true;
         req.session.save();
