@@ -198,8 +198,10 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         });
       } else {
         logger.info("ensureAuthenticated: Horus token is not expired");
+        logger.info("ensureAuthenticated: publicUserInformation: " + JSON.stringify(req.session.publicUserInformation));
+
         req.session.connectedUserInformation.renewedTokens = false;
-        req.session.connectedUserInformation.esEgresado = req.session.publicUserInformation?.esEgresado || "no hay xd";
+        req.session.connectedUserInformation.esEgresado = 4;
         return next();
       }
     } else {
