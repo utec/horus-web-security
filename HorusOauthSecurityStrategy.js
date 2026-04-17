@@ -58,7 +58,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       delete horusAuthResponse.refreshTokenV2;
 
       req.session.connectedUserInformation = horusAuthResponse;
-      logger.info("Connected user information: " + JSON.stringify(req.session));
+      logger.info("Connected user information (horusAuthResponse): " + JSON.stringify(horusAuthResponse));
+      logger.info("Connected user information (req.session): " + JSON.stringify(req.session));
 
 
       req.session.connectedUserInformation.esEgresado = 1;
