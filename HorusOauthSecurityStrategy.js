@@ -201,7 +201,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         logger.info("ensureAuthenticated: publicUserInformation: " + JSON.stringify(req.session.publicUserInformation));
 
         req.session.connectedUserInformation.renewedTokens = false;
-        req.session.connectedUserInformation.esEgresado = 4;
+        // req.session.connectedUserInformation.esEgresado = 4;
         return next();
       }
     } else {
