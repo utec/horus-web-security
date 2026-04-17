@@ -3,6 +3,7 @@ const uuid = require('uuid');
 
 function HorusOauthSecurityStrategy(expressServer, options) {
   logger.debug(options);
+  console.log('options', options);
 
   var _this = this;
   var horusRestClient = new HorusRestClient(options.horusBaseUrl);
@@ -57,6 +58,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       delete horusAuthResponse.refreshTokenV2;
 
       req.session.connectedUserInformation = horusAuthResponse;
+      req.session.connectedUserInformation.esEgresado = 1;
       req.session.save();
 
       if (req.session.originalUrl) {
@@ -73,6 +75,9 @@ function HorusOauthSecurityStrategy(expressServer, options) {
   expressServer.get('/horus/public/login', function (req, res) {
     if(options.enablePublicLogin === true){
       logger.info("HorusOauthSecurity public login enabled")
+
+      logger.info("Request ID: " + JSON.stringify(req.session))
+
       var requestId = getRequestId(req);
 
       var params = {
@@ -119,7 +124,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         req.session.connectedUserInformation.firstName = req.session.publicUserInformation.name;
         req.session.connectedUserInformation.publicLoginId = req.session.publicUserInformation.id;
         req.session.connectedUserInformation.lastName = req.session.publicUserInformation.lastname;
-        req.session.connectedUserInformation.esEgresado = req.session.publicUserInformation.esEgresado;
+        req.session.connectedUserInformation.esEgresado = 2;
 
         req.session.signinStarted = true;
         req.session.save();
@@ -187,11 +192,13 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           req.session.tokenInformation.acquisitionTime = new Date().getTime();
 
           req.session.connectedUserInformation.renewedTokens = true;
+          req.session.connectedUserInformation.esEgresado = 3;
 
           return next();
         });
       } else {
         req.session.connectedUserInformation.renewedTokens = false;
+        req.session.connectedUserInformation.esEgresado = 4;
         return next();
       }
     } else {
