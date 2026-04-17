@@ -2,7 +2,7 @@ const HorusRestClient = require('./client/HorusRestClient.js');
 const uuid = require('uuid');
 
 function HorusOauthSecurityStrategy(expressServer, options) {
-  logger.debug(options);
+  logger.info(options);
   console.log('options', options);
 
   var _this = this;
@@ -147,7 +147,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
   this.ensureAuthenticated = function (req, res, next) {
 
-    logger.debug("ensure if user is authenticated:" + req.path);
+    logger.info("ensure if user is authenticated:" + req.path);
 
     if (!req.session || (typeof req.session === 'undefined')) {
       throw new Error("Session is not properly configured");
@@ -157,7 +157,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       //User is already logged in
       if (isHorusTokenExpired(req)) {
         //refresh tokens
-        logger.debug("Horus token is expired");
+        logger.info("Horus token is expired");
 
         var params = {
           "grantType": "refresh_token",
@@ -169,7 +169,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
         horusRestClient.refreshTokens(params, requestId, function (refreshTokensError, refreshTokensResponse) {
           if (refreshTokensError) {
-            logger.debug("token renewal failure:" + refreshTokensError);
+            logger.info("token renewal failure:" + refreshTokensError);
             if (req.path.endsWith("/settings.json")) {
               var settings = {};
               settings.session = {};
@@ -197,8 +197,9 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           return next();
         });
       } else {
+        logger.info("ensureAuthenticated: Horus token is not expired");
         req.session.connectedUserInformation.renewedTokens = false;
-        req.session.connectedUserInformation.esEgresado = 4;
+        req.session.connectedUserInformation.esEgresado = req.session.publicUserInformation?.esEgresado || "no hay xd";
         return next();
       }
     } else {
@@ -231,7 +232,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
     var acquisitionTime = req.session.tokenInformation.acquisitionTime;
     var now = new Date().getTime();
     var tokenExpirationTime = options.horusOptions.tokenExpirationTime;
-    logger.debug("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000)
+    logger.info("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000)
     return now > (acquisitionTime + tokenExpirationTime * 1000);
   }
 
@@ -245,7 +246,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
     var acquisitionTime = req.session.tokenInformation.acquisitionTime;
     var now = new Date().getTime();
     var tokenExpirationTime = options.horusOptions.tokenExpirationTime;
-    logger.debug("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000 +
+    logger.info("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000 +
       " expired:" + (now > (acquisitionTime + tokenExpirationTime * 1000)))
     return now > (acquisitionTime + tokenExpirationTime * 1000);
   }
