@@ -61,8 +61,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       logger.info("Connected user information (horusAuthResponse): " + JSON.stringify(horusAuthResponse));
       logger.info("Connected user information (req.session): " + JSON.stringify(req.session));
 
-
-      req.session.connectedUserInformation.esEgresado = 1;
+      req.session.connectedUserInformation.esEgresado = req.session.connectedUserInformation.esEgresado || false;
       req.session.save();
 
       if (req.session.originalUrl) {
@@ -128,8 +127,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         req.session.connectedUserInformation.firstName = req.session.publicUserInformation.name;
         req.session.connectedUserInformation.publicLoginId = req.session.publicUserInformation.id;
         req.session.connectedUserInformation.lastName = req.session.publicUserInformation.lastname;
-        req.session.connectedUserInformation.esEgresado = 2;
-
+        req.session.connectedUserInformation.esEgresado = req.session.connectedUserInformation.esEgresado || false;
+      
         req.session.signinStarted = true;
         req.session.save();
   
@@ -196,7 +195,6 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           req.session.tokenInformation.acquisitionTime = new Date().getTime();
 
           req.session.connectedUserInformation.renewedTokens = true;
-          req.session.connectedUserInformation.esEgresado = 3;
 
           return next();
         });
@@ -205,7 +203,6 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         logger.info("ensureAuthenticated: publicUserInformation: " + JSON.stringify(req.session.publicUserInformation));
 
         req.session.connectedUserInformation.renewedTokens = false;
-        // req.session.connectedUserInformation.esEgresado = 4;
         return next();
       }
     } else {
