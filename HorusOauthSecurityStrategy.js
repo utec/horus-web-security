@@ -2,7 +2,7 @@ const HorusRestClient = require('./client/HorusRestClient.js');
 const uuid = require('uuid');
 
 function HorusOauthSecurityStrategy(expressServer, options) {
-  logger.debug(options); 
+  logger.debug(options);
 
   var _this = this;
   var horusRestClient = new HorusRestClient(options.horusBaseUrl);
@@ -17,7 +17,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       return;
     }
 
-    logger.debug("Authorizing new user with google oauth code: " + authorizationCode);
+    logger.info("Authorizing new user with google oauth code: " + authorizationCode);
     options.horusOptions.authenticate.authorizationCode = authorizationCode;
 
     var requestId = getRequestId(req);
@@ -36,14 +36,14 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         return;
       }
       if (options.overrideResponse === true && options.defaultBussinessUnit) {
-        logger.debug("Modifying default response");
+        logger.info("Modifying default response");
         var businessUnit = horusAuthResponse.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
 
         businessUnit.profiles.forEach(profile => {
           profile.options = mapMenuReferences(profile.options, options)
         })
       } else {
-        logger.debug("default response will be returned");
+        logger.info("default response will be returned");
       }
 
       req.session.tokenInformation = {};
@@ -74,7 +74,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
   expressServer.get('/horus/public/login', function (req, res) {
     if(options.enablePublicLogin === true){
-      logger.debug("HorusOauthSecurity public login enabled")
+      logger.info("HorusOauthSecurity public login enabled")
 
       var requestId = getRequestId(req);
 
@@ -94,14 +94,14 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           return;
         }
         if (options.overrideResponse === true && options.defaultBussinessUnit) {
-          logger.debug("Modifying default response");
+          logger.info("Modifying default response");
           var businessUnit = horusAuthResponse.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
   
           businessUnit.profiles.forEach(profile => {
             profile.options = mapMenuReferences(profile.options, options)
           })
         } else {
-          logger.debug("public login default response will be returned");
+          logger.info("public login default response will be returned");
         }
 
         req.session.tokenInformation = {};
@@ -199,7 +199,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         return next();
       }
     } else {
-      logger.debug("User not logged in");
+      logger.info("User not logged in");
 
       var params = {
         "clientId": options.horusOptions.authenticate.clientId,
@@ -216,7 +216,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           return;
         }
 
-        logger.debug("Redirect url: " + authorizeUrl);
+        logger.info("Redirect url: " + authorizeUrl);
         res.redirect(authorizeUrl);
         return;
       });
