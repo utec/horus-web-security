@@ -2,8 +2,7 @@ const HorusRestClient = require('./client/HorusRestClient.js');
 const uuid = require('uuid');
 
 function HorusOauthSecurityStrategy(expressServer, options) {
-  logger.info(options);
-  console.log('options', options);
+  logger.debug(options); 
 
   var _this = this;
   var horusRestClient = new HorusRestClient(options.horusBaseUrl);
@@ -18,7 +17,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       return;
     }
 
-    logger.info("Authorizing new user with google oauth code: " + authorizationCode);
+    logger.debug("Authorizing new user with google oauth code: " + authorizationCode);
     options.horusOptions.authenticate.authorizationCode = authorizationCode;
 
     var requestId = getRequestId(req);
@@ -37,14 +36,14 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         return;
       }
       if (options.overrideResponse === true && options.defaultBussinessUnit) {
-        logger.info("Modifying default response");
+        logger.debug("Modifying default response");
         var businessUnit = horusAuthResponse.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
 
         businessUnit.profiles.forEach(profile => {
           profile.options = mapMenuReferences(profile.options, options)
         })
       } else {
-        logger.info("default response will be returned");
+        logger.debug("default response will be returned");
       }
 
       req.session.tokenInformation = {};
@@ -58,8 +57,6 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       delete horusAuthResponse.refreshTokenV2;
 
       req.session.connectedUserInformation = horusAuthResponse;
-      logger.info("Connected user information (horusAuthResponse): " + JSON.stringify(horusAuthResponse));
-      logger.info("Connected user information (req.session): " + JSON.stringify(req.session));
 
       req.session.connectedUserInformation.esEgresado = req.session.connectedUserInformation.esEgresado || false;
       req.session.save();
@@ -77,9 +74,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
   expressServer.get('/horus/public/login', function (req, res) {
     if(options.enablePublicLogin === true){
-      logger.info("HorusOauthSecurity public login enabled")
-
-      logger.info("Request ID: " + JSON.stringify(req.session))
+      logger.debug("HorusOauthSecurity public login enabled")
 
       var requestId = getRequestId(req);
 
@@ -99,14 +94,14 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           return;
         }
         if (options.overrideResponse === true && options.defaultBussinessUnit) {
-          logger.info("Modifying default response");
+          logger.debug("Modifying default response");
           var businessUnit = horusAuthResponse.businessUnits.find(bu => bu.identifier === options.defaultBussinessUnit);
   
           businessUnit.profiles.forEach(profile => {
             profile.options = mapMenuReferences(profile.options, options)
           })
         } else {
-          logger.info("public login default response will be returned");
+          logger.debug("public login default response will be returned");
         }
 
         req.session.tokenInformation = {};
@@ -150,7 +145,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
   this.ensureAuthenticated = function (req, res, next) {
 
-    logger.info("ensure if user is authenticated:" + req.path);
+    logger.debug("ensure if user is authenticated:" + req.path);
 
     if (!req.session || (typeof req.session === 'undefined')) {
       throw new Error("Session is not properly configured");
@@ -160,7 +155,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       //User is already logged in
       if (isHorusTokenExpired(req)) {
         //refresh tokens
-        logger.info("Horus token is expired");
+        logger.debug("Horus token is expired");
 
         var params = {
           "grantType": "refresh_token",
@@ -172,7 +167,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
 
         horusRestClient.refreshTokens(params, requestId, function (refreshTokensError, refreshTokensResponse) {
           if (refreshTokensError) {
-            logger.info("token renewal failure:" + refreshTokensError);
+            logger.debug("token renewal failure:" + refreshTokensError);
             if (req.path.endsWith("/settings.json")) {
               var settings = {};
               settings.session = {};
@@ -199,14 +194,12 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           return next();
         });
       } else {
-        logger.info("ensureAuthenticated: Horus token is not expired");
-        logger.info("ensureAuthenticated: publicUserInformation: " + JSON.stringify(req.session.publicUserInformation));
 
         req.session.connectedUserInformation.renewedTokens = false;
         return next();
       }
     } else {
-      logger.info("User not logged in");
+      logger.debug("User not logged in");
 
       var params = {
         "clientId": options.horusOptions.authenticate.clientId,
@@ -223,7 +216,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           return;
         }
 
-        logger.info("Redirect url: " + authorizeUrl);
+        logger.debug("Redirect url: " + authorizeUrl);
         res.redirect(authorizeUrl);
         return;
       });
@@ -235,7 +228,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
     var acquisitionTime = req.session.tokenInformation.acquisitionTime;
     var now = new Date().getTime();
     var tokenExpirationTime = options.horusOptions.tokenExpirationTime;
-    logger.info("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000)
+    logger.debug("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000)
     return now > (acquisitionTime + tokenExpirationTime * 1000);
   }
 
@@ -249,7 +242,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
     var acquisitionTime = req.session.tokenInformation.acquisitionTime;
     var now = new Date().getTime();
     var tokenExpirationTime = options.horusOptions.tokenExpirationTime;
-    logger.info("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000 +
+    logger.debug("now:" + now + " acquisitionTime:" + acquisitionTime + " tokenExpirationTime:" + tokenExpirationTime * 1000 +
       " expired:" + (now > (acquisitionTime + tokenExpirationTime * 1000)))
     return now > (acquisitionTime + tokenExpirationTime * 1000);
   }
