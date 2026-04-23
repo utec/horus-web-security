@@ -194,7 +194,6 @@ function HorusOauthSecurityStrategy(expressServer, options) {
           return next();
         });
       } else {
-
         req.session.connectedUserInformation.renewedTokens = false;
         return next();
       }
