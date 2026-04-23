@@ -57,6 +57,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
       delete horusAuthResponse.refreshTokenV2;
 
       req.session.connectedUserInformation = horusAuthResponse;
+
+      req.session.connectedUserInformation.esEgresado = req.session.connectedUserInformation.esEgresado || false;
       req.session.save();
 
       if (req.session.originalUrl) {
@@ -73,6 +75,7 @@ function HorusOauthSecurityStrategy(expressServer, options) {
   expressServer.get('/horus/public/login', function (req, res) {
     if(options.enablePublicLogin === true){
       logger.info("HorusOauthSecurity public login enabled")
+
       var requestId = getRequestId(req);
 
       var params = {
@@ -119,7 +122,8 @@ function HorusOauthSecurityStrategy(expressServer, options) {
         req.session.connectedUserInformation.firstName = req.session.publicUserInformation.name;
         req.session.connectedUserInformation.publicLoginId = req.session.publicUserInformation.id;
         req.session.connectedUserInformation.lastName = req.session.publicUserInformation.lastname;
-
+        req.session.connectedUserInformation.esEgresado = req.session.connectedUserInformation.esEgresado || false;
+      
         req.session.signinStarted = true;
         req.session.save();
   
